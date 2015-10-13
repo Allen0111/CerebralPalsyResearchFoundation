@@ -38,13 +38,6 @@ void selfCheckTrue (int lightPin){   //function that indicates positive construc
     }
 }
 
-void toneProc(int mode) {
-    for (loopCount = 0; loopCount < mode; loopCount++) {
-        tone(3,1600,120);
-        delay(170);
-    }
-}
-
 
 //LED transition flash sequence//  
 void LightControl::modeTransitionIndicator(int goFromLightPin, int goFromCommPort, int goToLightPin, int goToCommPort){
