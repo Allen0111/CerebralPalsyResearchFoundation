@@ -85,7 +85,6 @@ void scanForSpeechCompletion(int button) {    // detect when user is done with s
 
 bool speechModeTransition() {
   current = driveMode;
-  bp (2);
   xbeeCoordinator.print("Talk Mode!\n");
   digitalWrite (driveCommPort,HIGH);
   digitalWrite (speechCommPort,LOW);
