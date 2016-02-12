@@ -1,27 +1,13 @@
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Document Name: ModeSelectionSwitch      (Main)                                  *
- * Author: Allen Bui                                                               *
- * Last Revision : October 08, 2015                                                *
- * Revision No.: ---                                                               *
- *                                                                                 * 
- *                                                                                 *
- * Copyright (c) 2015 Allen Bui. All rights reserved.                              *
- *                                                                                 *
- *                                                                                 *
- * ModeSelectionSwitch and all of its accompanying files are free                  *
- * software donated to The Cerebral Palsy Research Foundation:                     *
- * you can redistribute it and/or modify it under the terms of the                 *
- * GNU General Public License as published by the Free Software                    *
- * Foundation                                                                      *
- *                                                                                 *
- * ModeSelectionSwitch is distributed in the hope that it will be useful,          *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of                  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                   *
- * GNU General Public License for more details.                                    *
- *                                                                                 * 
- *                                                                                 *
- * ModeSelectionSwitch houses the Main loop where the program begins execution     *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Document Name: ModeSelectionSwitch      (Main)                                      *
+ * Author: Allen Bui                                                                   *
+ * Last Revision : September 27, 2015                                                  *
+ * Revision No.: 2                                                                     *
+ *                                                                                     * 
+ *                                                                                     * 
+ *                                                                                     *
+ * ModeSelectionSwitch houses the Main loop where the program begins execution         *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #include <stdlib.h>
 #include <stdio.h> 
@@ -33,19 +19,9 @@ using namespace std;
 
 SoftwareSerial xbeeCoordinator(2, 3);  // Arduino RX, TX (xbeeCoordinator Dout, Din)
 
-const int button = 4;                         //input button is located at GPIO pin 4
-const int  coordinatorStatusLight = 11;   //coordinator GPIO pin is located at pin 11
+const int button = 4;   //button is located at GPIO pin 4
 
-static int checkMode = 0;
-static bool driveDesire = false, speechDesire = false;
-
-enum mode {SPEECH = 0, DRIVE};
-void emergencyShutdown();
-
-//create instances
-LightControl lightControl;
-DriveMode driveMode;
-SpeechMode speechMode;
+const int  coordinatorStatusLight = 11;
 
 /* * * * * * * * * * * * * * * * * * * * * * * * *
  *                                               *
@@ -54,25 +30,39 @@ SpeechMode speechMode;
  *                                               *
  * * * * * * * * * * * * * * * * * * * * * * * * */
 void setup() {
-    
-    lightControl.selfCheckTrue(driveMode.getDriveModeLightPin());   //will indicate a successful construction of DriveMode, does not indicate status
-    lightControl.selfCheckTrue(speechMode.getSpeechModeLightPin());     //will indicate a successful construction of SpeechMode
-        
+  
     xbeeCoordinator.begin(9600);   //setup baud rate of xbee
     Serial.begin(9600);
+  
+    DriveMode driveMode;    //create instances of each object
+    SpeechMode speechMode;
+    LightControl lightControl;
 
+    static bool driveDesire = false, speechDesire = false;
+  
     //setup inputs  
     pinMode(button, INPUT_PULLUP); //Set input port of Button input
+      
+    //setup outputs
+    pinMode(getSpeechModeLight(), OUTPUT);  //LED of speech at pin 9
+    pinMode(getDriveModeLight(), OUTPUT);      //LED of speech at pin 10
     pinMode(coordinatorStatusLight, OUTPUT);     //coordinator status light set at pin 11
     
-    checkMode = getSpeechMode();
+    pinMode(getSpeechCommPort(), OUTPUT);   //speech comm port is located at pin 5
+    pinMode(getDriveCommPort(), OUTPUT); //drive comm port is located at pin 6
+  
+    SelfCheckTest (3);
     
-    if (speechModeTransition()) {
+    int currentMode = getSpeechMode();
+    
+    if (SpeechModeTransition()) {
         printf("successful startup, current mode = speech");
-    } else {
+    }
+    else {
         emergencyShutdown();
     }
 }
+
 
 /* * * * * * * * * * * * * * * * * * * * * * * * *
  *                                               *
@@ -84,33 +74,31 @@ void setup() {
 void loop()
 {
     if (xbeeCoordinator.available()) {
-        if (digitalRead(button) == LOW){
-            switch(checkMode){
-            case(SPEECH):
-                xbeeCoordinator.print("MAIN TO SPEECH COMPLETION CHECK!\n");
-                driveDesire = speechMode.scanForSpeechCompletion(button);
-                if (driveDesire == true) {
-                      if(driveDesire.changeSpeechMode()) {
-                          lightControl.modeTransitionIndicator(driveMode.getDriveModeLightPin());
-                          checkMode = speechMode.getSpeechMode();
-                          driveDesire = false;
+        if (digitalRead(button)==LOW){
+            switch (RunMode){
+            case speechMode:
+                xbeeCoordinator.print("MAIN TO SPEECH CHECK!\n");
+                speechMode.scanForSpeechCommand(button);
+                if (speechDesire == true) {
+                      if(speechMode.speechModeTransition()) {
+                          lightControl.modeTransitionIndicator(getDriveModeLightPin());
+                          currentMode = getSpeechMode();
                       }
                       else {
                          emergencyShutdown();
                       }
                 }
                 break;
-            case(DRIVE):
-                xbeeCoordinator.print("MAIN TO DRIVE COMPLETION CHECK!\n");
-                speechDesire = driveMode.scanForDriveCompletion(button);
-                if (speechDesire == true) {
+            case driveMode:
+                xbeeCoordinator.print("MAIN TO DRIVE CHECK!\n");
+                driveMode.scanForDriveCommand(button);
+                if (driveDesire == true) {
                     if (driveMode.driveModeTransition()) {
-                       lightControl.modeTransitionIndicator(speechMode.getSpeechModeLightPin);
-                       checkMode = driveMode.getDriveMode(); 
-                       speechDesire = false;
+                       lightControl.modeTransitionIndicator(getSpeechModeLightPin);
+                       currentMode = getDriveMode(); 
                     }
                     else {
-                        emergencyShutdown();
+                        emergencyShutDown();
                     }
                 }
                 break;
@@ -119,6 +107,29 @@ void loop()
     }
 }
 
-void emergencyShutdown(){
-    //can only be implemented once the hardware is setup
+
+//Self Check//
+void SelfCheckTest (int y){
+  delay (1000);
+  for (int x = 0;x < y;x++ ){
+    bp (1);
+    digitalWrite (speechModeLight,HIGH);
+    digitalWrite (driveModeLight,HIGH);
+    digitalWrite (statusLight,HIGH);
+    delay (500);
+    digitalWrite (speechModeLight,LOW);
+    digitalWrite (driveModeLight,LOW);
+    digitalWrite (statusLight,LOW);
+    delay (500);
+  }
+  digitalWrite (statusLight,HIGH); //Working LED//
 }
+
+void bp (int x){
+  xbeeCoordinator.print("Transition!\n");
+  for (int y = 0; y < x; y++){
+    tone (3,1600,120);
+    delay (170);
+  }
+}
+
