@@ -33,7 +33,7 @@ DriveMode::DriveMode() {
     driveMode = 1;
     driveModeActive = false;
     pinMode(driveModeLightPin, OUTPUT);
-    pinMode(driveCommPortPin, OUTPUT);
+    pinMode(driveCommPortPin, OUTPUT);;
 }
 
 DriveMode::~DriveMode() {
@@ -70,7 +70,7 @@ byte DriveMode::getDriveIdentification() {
 
 bool DriveMode::scanForDriveCompletion(int button, SoftwareSerial *xbeeCoordinator) {    // searches for two short presses indicating that 
                                                                 //user is finished with drive mode. (high,low, high)
-    delay(shortPressTime + shortPressTime);
+    /*delay(shortPressTime + shortPressTime);
     if (digitalRead(button) == HIGH) {
       Serial.print("high detected at ");
       Serial.println(+ millis());
@@ -86,8 +86,11 @@ bool DriveMode::scanForDriveCompletion(int button, SoftwareSerial *xbeeCoordinat
                 return(true);
             }
         }
-    }
-    else {
+    }*/
+
+    if (timedEdgeDetection(button)) {
+        return true;
+    } else {
         int eval = 1;
         while (eval > 0) {
             if (digitalRead(button) == LOW) {
@@ -110,6 +113,41 @@ bool DriveMode::scanForDriveCompletion(int button, SoftwareSerial *xbeeCoordinat
         }
     }
     return(false);
+}
+
+bool DriveMode::timedEdgeDetection(int button) {
+  
+    if (buttonState == HIGH) {
+        lastButtonState = LOW;
+    } else lastButtonState = HIGH;
+  
+    unsigned long long timer = millis();
+    
+    while((millis() - timer) <= 2000) {
+    
+        buttonState = digitalRead(button);
+
+        if (buttonState != lastButtonState) {
+            if (buttonState == LOW) {
+                buttonPushCounter++;
+                Serial.println("on");
+                Serial.print("number of button pushes:  ");
+                Serial.println(buttonPushCounter);   
+            } 
+            
+            delay(50); // Debounce
+            
+            if(buttonPushCounter >= 2) {
+                buttonPushCounter = 0;
+                return true;
+            }
+        }
+
+        lastButtonState = buttonState; 
+    }
+    
+    buttonPushCounter = 0;
+    return false;
 }
 
 bool DriveMode::driveModeTransition(SoftwareSerial *xbeeCoordinator, char modeVerification, char modeIdentification) {   //transition from driveMode to speechMode
