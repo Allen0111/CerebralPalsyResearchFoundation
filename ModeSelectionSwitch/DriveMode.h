@@ -52,7 +52,12 @@
             int buttonPushCounter = 0;   // counter for the number of button presses
             int buttonState = 0;         // current state of the button
             int lastButtonState = 0;
-        
+            unsigned long long timer;
+            
+            int allottedTime = 2000;    //two seconds
+
+            bool timedEdgeDetection(int button);
+
         //public access functions
         public:
 
@@ -72,7 +77,6 @@
             
             //control functions
             bool scanForDriveCompletion(int button, SoftwareSerial *xbeeCoordinator);   //function to check for the drive cue
-            bool timedEdgeDetection(int button);
             bool driveModeTransition(SoftwareSerial *xbeeCoordinator, char modeVerification, char modeIdentification);       //function to transition from some other mode, to drive mode. (ATTEMPTS TO OBTAIN THE SEMAPHORE KEY)
     };
     

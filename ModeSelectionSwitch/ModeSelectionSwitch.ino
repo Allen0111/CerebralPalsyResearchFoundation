@@ -1,4 +1,4 @@
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-
  * Document Name: ModeSelectionSwitch      (Main)                                  *
  * Author: Allen Bui                                                               *
  * Last Revision : Februay 11, 2016                                                *
@@ -67,8 +67,7 @@ void setup() {
 
 
     Serial.println("initiating");
-    /*if (driveMode.driveModeTransition(&xbeeCoordinator, speechMode.getSpeechVerification(), speechMode.getSpeechIdentification())) {
-      Serial.println("inside the if statement");
+    if (driveMode.driveModeTransition(&xbeeCoordinator, speechMode.getSpeechVerification(), speechMode.getSpeechIdentification())) {
         //xbeeCoordinator.print("successful startup, current mode = speech\n");
         //SPEECHMODE == TRUE;
         //lightControl.modeTransitionIndicator(driveMode.getDriveModeLightPin(), speechMode.getSpeechModeLightPin());
@@ -76,7 +75,7 @@ void setup() {
     } else {
         //xbeeCoordinator.print("emergency shutdown\n");
         emergencyShutdown();
-    }*/
+    }
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * *
@@ -87,6 +86,7 @@ void setup() {
  *                                               *
  * * * * * * * * * * * * * * * * * * * * * * * * */
 void loop() {
+
     if (xbeeCoordinator.isListening()) {
         if (digitalRead(button) == LOW) {
             switch(checkMode){
@@ -126,6 +126,7 @@ void loop() {
 }
 
 void emergencyShutdown() {
+  Serial.println("shutdown");
     //can only be implemented once the hardware is setup
 }
 

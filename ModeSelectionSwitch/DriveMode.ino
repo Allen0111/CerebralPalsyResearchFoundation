@@ -33,7 +33,8 @@ DriveMode::DriveMode() {
     driveMode = 1;
     driveModeActive = false;
     pinMode(driveModeLightPin, OUTPUT);
-    pinMode(driveCommPortPin, OUTPUT);;
+    pinMode(driveCommPortPin, OUTPUT);
+    timer = millis();
 }
 
 DriveMode::~DriveMode() {
@@ -120,33 +121,34 @@ bool DriveMode::timedEdgeDetection(int button) {
     if (buttonState == HIGH) {
         lastButtonState = LOW;
     } else lastButtonState = HIGH;
-  
-    unsigned long long timer = millis();
-    
-    while((millis() - timer) <= 2000) {
-    
-        buttonState = digitalRead(button);
 
-        if (buttonState != lastButtonState) {
-            if (buttonState == LOW) {
-                buttonPushCounter++;
-                Serial.println("on");
-                Serial.print("number of button pushes:  ");
-                Serial.println(buttonPushCounter);   
-            } 
-            
-            delay(50); // Debounce
-            
-            if(buttonPushCounter >= 2) {
-                buttonPushCounter = 0;
-                return true;
-            }
+    if ((millis() - timer) <= allottedTime) {
+      timer = millis();
+      buttonPushCounter = 0;
+      return false;
+    }                                                                //else {
+    
+    buttonState = digitalRead(button);
+
+    if (buttonState != lastButtonState) {
+        if (buttonState == LOW) {
+            buttonPushCounter++;
+            Serial.println("on");
+            Serial.print("number of button pushes:  ");
+            Serial.println(buttonPushCounter);   
+        } 
+        
+        delay(50); // Debounce
+        
+        if(buttonPushCounter >= 2 && ((millis() - timer) <= allottedTime)) {
+            buttonPushCounter = 0;
+            timer = millis();
+            return true;
         }
-
-        lastButtonState = buttonState; 
     }
     
-    buttonPushCounter = 0;
+    lastButtonState = buttonState;
+                                                         // }
     return false;
 }
 
