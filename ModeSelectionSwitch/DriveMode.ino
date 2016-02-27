@@ -28,12 +28,13 @@
     
 //function definitions
 DriveMode::DriveMode() {
-    driveModeLightPin = 10;
-    driveCommPortPin = 6;
+   // driveModeLightPin = 10;
+   // driveCommPortPin = 4;
+    pinMode(output, OUTPUT);
     driveMode = 1;
     driveModeActive = false;
-    pinMode(driveModeLightPin, OUTPUT);
-    pinMode(driveCommPortPin, OUTPUT);
+   //pinMode(driveModeLightPin, OUTPUT);
+   // pinMode(driveCommPortPin, OUTPUT);
     timer = millis();
 }
 
@@ -96,8 +97,9 @@ bool DriveMode::scanForDriveCompletion(int button, SoftwareSerial *xbeeCoordinat
         while (eval > 0) {
             if (digitalRead(button) == LOW) {
                 if (count == 0) {
-                    xbeeCoordinator->write(driveHigh);
-                    digitalWrite(driveCommPortPin, HIGH);
+                    digitalWrite(output, HIGH);
+                    //xbeeCoordinator->write(driveHigh);
+                    //digitalWrite(driveCommPortPin, HIGH);
                     count++;
                 }
                 else {
@@ -105,8 +107,9 @@ bool DriveMode::scanForDriveCompletion(int button, SoftwareSerial *xbeeCoordinat
                 }
             }
             else {
-              digitalWrite(driveCommPortPin, LOW);
-              xbeeCoordinator->write(driveLow);
+              //digitalWrite(driveCommPortPin, LOW);
+              //xbeeCoordinator->write(driveLow);
+              digitalWrite(output, LOW);
               count = 0;
               eval = 0;
               return(false);

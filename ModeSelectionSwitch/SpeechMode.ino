@@ -109,18 +109,18 @@ bool SpeechMode::speechModeTransition(SoftwareSerial *xbeeCoordinator, char mode
 
     myFlush();
 
-    xbeeCoordinator->write(modeIdentification);
+    //xbeeCoordinator->write(modeIdentification);
     
-    delay(25);
+    //delay(25);
     
-    if (xbeeCoordinator->read() == modeVerification) {    
+    //if (xbeeCoordinator->read() == modeVerification) {    
         speechModeActive = false;
                /*commented out the next four lines and added the two that lie here*/
                                       //  digitalWrite (driveCommPort,HIGH);
                                                                                     //  digitalWrite (speechCommPort,LOW);
-    }                                                                              //  delay (50);
-    else {                                                                        //  digitalWrite (driveCommPort,LOW);
-        speechModeActive = true;                                                //  digitalWrite (speechModeLight,HIGH);
-    }                                                                           //  digitalWrite (driveModeLight,LOW);
+  //  }                                                                              //  delay (50);
+   // else {                                                                        //  digitalWrite (driveCommPort,LOW);
+     //   speechModeActive = true;                                                //  digitalWrite (speechModeLight,HIGH);
+   // }                                                                           //  digitalWrite (driveModeLight,LOW);
     return(!speechModeActive);
 }

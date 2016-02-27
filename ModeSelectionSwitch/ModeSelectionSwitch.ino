@@ -32,7 +32,7 @@
 
 SoftwareSerial xbeeCoordinator(2, 3);  // Arduino RX, TX (xbeeCoordinator Dout, Din)
 
-const int button = 4;                         //input button is located at GPIO pin 4
+const int button = 8;                         //input button is located at GPIO pin 8
 const int  coordinatorStatusLight = 11;   //coordinator GPIO pin is located at pin 11
 
 static int checkMode = 0;

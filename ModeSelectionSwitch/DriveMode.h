@@ -42,6 +42,7 @@
             const byte driveHigh = 'b';
             const byte driveLow = 'c';
             const byte driveVerification = 'D';
+            const int output = 4;
 
             int count = 0;
             int driveModeLightPin;
