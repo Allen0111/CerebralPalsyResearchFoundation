@@ -86,20 +86,23 @@ bool SpeechMode::scanForSpeechCompletion(int button, SoftwareSerial *xbeeCoordin
     bool completeCheck = false;
     int clickDetector = digitalRead(button);
     
-    for(clickDetector; clickDetector == LOW; clickDetector = digitalRead(button)) {
+    for(clickDetector; clickDetector == HIGH; clickDetector = digitalRead(button)) {
         incrementTimer();
         delay(10);
     }
     
     if (timer > longPressTime){
         completeCheck = true;
-    }
-    else {
-        xbeeCoordinator->write(speechHigh);
-        digitalWrite(speechCommPortPin, HIGH);
-        delay(110);
-        digitalWrite(speechCommPortPin, LOW);
-        xbeeCoordinator->write(speechLow);
+    } else {
+        if (!firstClick) {
+            xbeeCoordinator->write(speechHigh);
+            Serial.println("LOW");
+            delay(110);
+            Serial.println("HIGH");
+            xbeeCoordinator->write(speechLow);
+        } else {
+            firstClick = false;
+        }
     }
     return completeCheck;
 }
@@ -109,7 +112,7 @@ bool SpeechMode::speechModeTransition(SoftwareSerial *xbeeCoordinator, char mode
 
     myFlush();
 
-    //xbeeCoordinator->write(modeIdentification);
+    xbeeCoordinator->write(modeIdentification);
     
     //delay(25);
     
@@ -122,5 +125,11 @@ bool SpeechMode::speechModeTransition(SoftwareSerial *xbeeCoordinator, char mode
    // else {                                                                        //  digitalWrite (driveCommPort,LOW);
      //   speechModeActive = true;                                                //  digitalWrite (speechModeLight,HIGH);
    // }                                                                           //  digitalWrite (driveModeLight,LOW);
-    return(!speechModeActive);
+    //return(!speechModeActive);
+    return true;
 }
+
+void SpeechMode::setFirstClick() {
+  firstClick = true;
+}
+

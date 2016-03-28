@@ -49,6 +49,7 @@
             int speechMode;
             int speechCommPortPin;
             bool speechModeActive;
+            bool firstClick;
             int timer;
             int SensorVal;
             static const int longPressTime = 80;    //variable for long press (5 second default) 
@@ -80,6 +81,7 @@
             //control functions        
             bool scanForSpeechCompletion(int button, SoftwareSerial *xbeeCoordinator);    //function that checks for the finish speech cue
             bool speechModeTransition(SoftwareSerial *xbeeCoordinator, char modeVerification, char modeIdentification);
+            void setFirstClick();
     };
     
 #endif

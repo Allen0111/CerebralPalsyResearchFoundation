@@ -60,7 +60,7 @@ void setup() {
     Serial.begin(9600);
 
     //setup inputs  
-    pinMode(button, INPUT_PULLUP); //Set input port of Button input
+    pinMode(button, INPUT); //Set input port of Button input
     pinMode(coordinatorStatusLight, OUTPUT);     //coordinator status light set at pin 11
     
     checkMode = speechMode.getSpeechMode();
@@ -88,7 +88,8 @@ void setup() {
 void loop() {
 
     if (xbeeCoordinator.isListening()) {
-        if (digitalRead(button) == LOW) {
+        if (digitalRead(button) == HIGH) {
+                      Serial.println("main someone hit the button");
             switch(checkMode){
             case(SPEECH):
                 driveDesire = speechMode.scanForSpeechCompletion(button, &xbeeCoordinator);
@@ -96,6 +97,7 @@ void loop() {
                       if (speechMode.speechModeTransition(&xbeeCoordinator, driveMode.getDriveVerification(), driveMode.getDriveIdentification())) {
                           //lightControl.modeTransitionIndicator(speechMode.getSpeechModeLightPin(), driveMode.getDriveModeLightPin());
                           //DRIVE MODE == TRUE
+                          driveMode.resetTimer();
                           checkMode = driveMode.getDriveMode();
                           driveDesire = false;
                       }
@@ -106,11 +108,13 @@ void loop() {
                 }
                 break;
             case(DRIVE):
+                driveMode.incrementButton();
                 speechDesire = driveMode.scanForDriveCompletion(button, &xbeeCoordinator);
                 if (speechDesire == true) {
                     if (driveMode.driveModeTransition(&xbeeCoordinator, speechMode.getSpeechVerification(), speechMode.getSpeechIdentification())) {
                         //SPEECH MODE == TRUE
                         //lightControl.modeTransitionIndicator(driveMode.getDriveModeLightPin(), speechMode.getSpeechModeLightPin());
+                        speechMode.setFirstClick();
                         checkMode = speechMode.getSpeechMode(); 
                         speechDesire = false;
                     }

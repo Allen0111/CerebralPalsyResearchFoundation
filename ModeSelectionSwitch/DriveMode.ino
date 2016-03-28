@@ -71,45 +71,33 @@ byte DriveMode::getDriveIdentification() {
 //Control Functions
 
 bool DriveMode::scanForDriveCompletion(int button, SoftwareSerial *xbeeCoordinator) {    // searches for two short presses indicating that 
-                                                                //user is finished with drive mode. (high,low, high)
-    /*delay(shortPressTime + shortPressTime);
-    if (digitalRead(button) == HIGH) {
-      Serial.print("high detected at ");
-      Serial.println(+ millis());
-        delay(shortPressTime + (shortPressTime * 0.5)); 
-        if (digitalRead(button) == LOW) {
-          Serial.println("low detected at ");
-          Serial.println(millis());
-            delay(shortPressTime + (shortPressTime * 0.5));
-            if (digitalRead(button)==HIGH) {
-              Serial.print("high detected at ");
-              Serial.print(millis());
-              Serial.println("time to transition");
-                return(true);
-            }
-        }
-    }*/
 
     if (timedEdgeDetection(button)) {
+        Serial.println("if edge detection");
         return true;
     } else {
+      Serial.println("else edge detection");
         int eval = 1;
         while (eval > 0) {
-            if (digitalRead(button) == LOW) {
+          Serial.println("while loop");
+            if (digitalRead(button) == HIGH) {
+                        Serial.println("while loop button high");
                 if (count == 0) {
-                    digitalWrite(output, HIGH);
-                    //xbeeCoordinator->write(driveHigh);
+                            Serial.println("while loop count is zero");
+                    digitalWrite(output, LOW);
+                    xbeeCoordinator->write(driveHigh);
                     //digitalWrite(driveCommPortPin, HIGH);
                     count++;
                 }
                 else {
+                            Serial.println("while loop count is not zero");
                     count = 1;    //to ensure that count will not exceed the size of an int
                 }
             }
             else {
               //digitalWrite(driveCommPortPin, LOW);
-              //xbeeCoordinator->write(driveLow);
-              digitalWrite(output, LOW);
+              xbeeCoordinator->write(driveLow);
+              digitalWrite(output, HIGH);
               count = 0;
               eval = 0;
               return(false);
@@ -120,35 +108,37 @@ bool DriveMode::scanForDriveCompletion(int button, SoftwareSerial *xbeeCoordinat
 }
 
 bool DriveMode::timedEdgeDetection(int button) {
-  
-    if (buttonState == HIGH) {
-        lastButtonState = LOW;
-    } else lastButtonState = HIGH;
+            Serial.println("timed edge function");
+    if (buttonState == LOW) {
+        lastButtonState = HIGH;
+    } else lastButtonState = LOW;
 
-    if ((millis() - timer) <= allottedTime) {
+    if ((millis() - timer) >= allottedTime) {
+                Serial.println("time out");
       timer = millis();
-      buttonPushCounter = 0;
-      return false;
+      buttonPushCounter = 1;
+      //return false;
     }                                                                //else {
-    
-    buttonState = digitalRead(button);
+   Serial.print("number of button pushes:  ");
+            Serial.println(buttonPushCounter);
+               
+    /*buttonState = digitalRead(button);
 
     if (buttonState != lastButtonState) {
-        if (buttonState == LOW) {
+        if (buttonState == HIGH) {
             buttonPushCounter++;
-            Serial.println("on");
             Serial.print("number of button pushes:  ");
             Serial.println(buttonPushCounter);   
-        } 
+        } */
         
-        delay(50); // Debounce
+        //delay(50); // Debounce
         
-        if(buttonPushCounter >= 2 && ((millis() - timer) <= allottedTime)) {
+        if(((millis() - timer) <= allottedTime) && buttonPushCounter >= 2) {
             buttonPushCounter = 0;
             timer = millis();
             return true;
         }
-    }
+   // }
     
     lastButtonState = buttonState;
                                                          // }
@@ -170,3 +160,17 @@ bool DriveMode::driveModeTransition(SoftwareSerial *xbeeCoordinator, char modeVe
     }
     return(!driveModeActive);
 }
+
+void DriveMode::resetTimer() {
+ 
+                Serial.println("reset timer and button");
+      timer = millis();
+      buttonPushCounter = 0;
+  
+}
+
+void DriveMode::incrementButton() {
+  buttonPushCounter++;
+}
+
+
