@@ -29,8 +29,8 @@
 //function definitions
 DriveMode::DriveMode() {
    // driveModeLightPin = 10;
-   // driveCommPortPin = 4;
-    pinMode(output, OUTPUT);
+    driveCommPortPin = 4;
+    pinMode(driveCommPortPin, OUTPUT);
     driveMode = 1;
     driveModeActive = false;
    //pinMode(driveModeLightPin, OUTPUT);
@@ -84,9 +84,9 @@ bool DriveMode::scanForDriveCompletion(int button, SoftwareSerial *xbeeCoordinat
                         Serial.println("while loop button high");
                 if (count == 0) {
                             Serial.println("while loop count is zero");
-                    digitalWrite(output, LOW);
+                    //digitalWrite(output, LOW);
                     xbeeCoordinator->write(driveHigh);
-                    //digitalWrite(driveCommPortPin, HIGH);
+                    digitalWrite(driveCommPortPin, HIGH);
                     count++;
                 }
                 else {
@@ -95,9 +95,9 @@ bool DriveMode::scanForDriveCompletion(int button, SoftwareSerial *xbeeCoordinat
                 }
             }
             else {
-              //digitalWrite(driveCommPortPin, LOW);
+              digitalWrite(driveCommPortPin, LOW);
               xbeeCoordinator->write(driveLow);
-              digitalWrite(output, HIGH);
+              //digitalWrite(output, HIGH);
               count = 0;
               eval = 0;
               return(false);
