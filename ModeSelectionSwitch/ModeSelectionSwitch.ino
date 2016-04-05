@@ -1,3 +1,4 @@
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-
  * Document Name: ModeSelectionSwitch      (Main)                                  *
  * Author: Allen Bui                                                               *
@@ -22,7 +23,7 @@
  *                                                                                 *
  * ModeSelectionSwitch houses the Main loop where the program begins execution     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+#include <EEPROM.h>
 #include <stdlib.h>
 #include <stdio.h> 
 #include <SoftwareSerial.h>
@@ -39,7 +40,12 @@ static int checkMode = 0;
 static bool driveDesire = false, speechDesire = false;
 
 enum mode {SPEECH = 0, DRIVE};
+
+long transmitCount;
+long eepromCount;
+
 void emergencyShutdown();
+
 
 //create instances
 //LightControl lightControl;
@@ -55,7 +61,19 @@ SpeechMode speechMode;
 void setup() {
     //lightControl.selfCheckTrue(driveMode.getDriveModeLightPin());   //will indicate a successful construction of DriveMode, does not indicate status
     //lightControl.selfCheckTrue(speechMode.getSpeechModeLightPin());     //will indicate a successful construction of SpeechMode
-        
+
+
+/* ERROR CHECKING BY WRITING TRANSMIT COUNT INTO MEMORY */
+    eepromCount = EEPROM.read(0);
+    Serial.println(eepromCount);
+    
+    if(eepromCount > 0) {
+      transmitCount = EEPROM.read(0);
+    } else {
+      transmitCount = 0;
+    }
+/*END OF READING FORM EEPROM */
+    
     xbeeCoordinator.begin(9600);   //setup baud rate of xbee
     Serial.begin(9600);
 
@@ -86,7 +104,8 @@ void setup() {
  *                                               *
  * * * * * * * * * * * * * * * * * * * * * * * * */
 void loop() {
-
+    EEPROM.put(0, transmitCount);
+    Serial.println(transmitCount);
     if (xbeeCoordinator.isListening()) {
         if (digitalRead(button) == HIGH) {
                       Serial.println("main someone hit the button");

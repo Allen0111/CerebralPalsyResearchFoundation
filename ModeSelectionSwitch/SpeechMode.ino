@@ -96,10 +96,12 @@ bool SpeechMode::scanForSpeechCompletion(int button, SoftwareSerial *xbeeCoordin
     } else {
         if (!firstClick) {
             xbeeCoordinator->write(speechHigh);
+            transmitCount++;
             Serial.println("LOW");
             delay(110);
             Serial.println("HIGH");
             xbeeCoordinator->write(speechLow);
+            transmitCount++;
         } else {
             firstClick = false;
         }
@@ -113,7 +115,7 @@ bool SpeechMode::speechModeTransition(SoftwareSerial *xbeeCoordinator, char mode
     myFlush();
 
     xbeeCoordinator->write(modeIdentification);
-    
+    transmitCount++;
     //delay(25);
     
     //if (xbeeCoordinator->read() == modeVerification) {    

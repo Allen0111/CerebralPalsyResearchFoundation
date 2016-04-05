@@ -87,6 +87,7 @@ bool DriveMode::scanForDriveCompletion(int button, SoftwareSerial *xbeeCoordinat
                     //digitalWrite(output, LOW);
                     xbeeCoordinator->write(driveHigh);
                     digitalWrite(driveCommPortPin, HIGH);
+                    transmitCount++;
                     count++;
                 }
                 else {
@@ -96,6 +97,7 @@ bool DriveMode::scanForDriveCompletion(int button, SoftwareSerial *xbeeCoordinat
             }
             else {
               digitalWrite(driveCommPortPin, LOW);
+              transmitCount++;
               xbeeCoordinator->write(driveLow);
               //digitalWrite(output, HIGH);
               count = 0;
@@ -149,15 +151,16 @@ bool DriveMode::driveModeTransition(SoftwareSerial *xbeeCoordinator, char modeVe
     myFlush();
     
     xbeeCoordinator->write(modeIdentification);
+    transmitCount++;
     delay(25);
     
-    if (xbeeCoordinator->read() == modeVerification) {    
+    //if (xbeeCoordinator->read() == modeVerification) {    
         driveModeActive = false;             /*commented out the next four lines and added the two that lie here*/                                         //  digitalWrite (speechCommPort,HIGH);
                                                                                    //  digitalWrite (driveCommPort,LOW);
-    }                                                                             //  delay (50);
-    else {                                                                       //  digitalWrite (speechCommPort,LOW);
-        driveModeActive = true;
-    }
+    //}                                                                             //  delay (50);
+    //else {                                                                       //  digitalWrite (speechCommPort,LOW);
+    //    driveModeActive = true;
+    //}
     return(!driveModeActive);
 }
 
