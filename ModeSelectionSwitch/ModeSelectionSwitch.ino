@@ -1,12 +1,7 @@
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-
- * Document Name: ModeSelectionSwitch      (Main)                                  *
- * Author: Allen Bui                                                               *
- * Last Revision : Februay 11, 2016                                                *
- * Revision No.:  A                                                                *
- *                                                                                 * 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
  *                                                                                 *
- * Copyright (c) 2015 Allen Bui. All rights reserved.                              *
+ * Copyright (c) 2015 Allen Bui. <Allen.Bui.0111@gmail.com                         *
  *                                                                                 *
  *                                                                                 *
  * ModeSelectionSwitch and all of its accompanying files are free                  *
@@ -14,15 +9,45 @@
  * you can redistribute it and/or modify it under the terms of the                 *
  * GNU General Public License as published by the Free Software                    *
  * Foundation                                                                      *
+ *                                                                                 *  
+ * The above copyright notice and this permission notice shall be                  * 
+ * included in all copies or substantial portions of the Software.                 *                                                                                 *
+ * ModeSelectionSwitch is distributed in the hope that it will be useful.          *
  *                                                                                 *
- * ModeSelectionSwitch is distributed in the hope that it will be useful,          *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of                  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                   *
- * GNU General Public License for more details.                                    *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,                 *
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF              * 
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT           *                                                                     * 
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE                           * 
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION          * 
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION           * 
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 *                   
+ *                                                                                 * 
+ * See the GNU General Public License for more details.                            *
  *                                                                                 * 
  *                                                                                 *
- * ModeSelectionSwitch houses the Main loop where the program begins execution     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -
+ * Document Name: ModeSelectionSwitch      (Main)                                  
+ * Author: Allen Bui                                                               
+ * Last Revision : April 22, 2016                                                  
+ * Revision No.:  A                                                                
+ *                                                                                 
+ *                                                                                 
+ * MODIFICATION NOTES: 
+ * 4/1/2016  - ADDED EEPROM FOR PACKET LOSS COUNT
+ * 4/22/2016 - ADDED WATCHDOG TIMER FOR SAFETY AND ROBUSTNESS
+ *
+ * ModeSelectionSwitch houses the Main loop where the program begins execution
+ */
+
+
+/********* Added watchdog timer on April 22, 2016 **********/
+
+#include<avr/wdt.h> 
+
+/*********************************************************/
 #include <EEPROM.h>
 #include <stdlib.h>
 #include <stdio.h> 
@@ -62,6 +87,12 @@ void setup() {
     //lightControl.selfCheckTrue(driveMode.getDriveModeLightPin());   //will indicate a successful construction of DriveMode, does not indicate status
     //lightControl.selfCheckTrue(speechMode.getSpeechModeLightPin());     //will indicate a successful construction of SpeechMode
 
+/* WATCH DOG TIMER 4/22/2016*/
+
+    wdt_enable(WDTO_30MS);
+
+/* END OF WATCH DOG TIMER REVISION */
+
 
 /* ERROR CHECKING BY WRITING TRANSMIT COUNT INTO MEMORY */
     eepromCount = EEPROM.read(0);
@@ -83,7 +114,6 @@ void setup() {
     
     checkMode = speechMode.getSpeechMode();
 
-
     Serial.println("initiating");
     if (driveMode.driveModeTransition(&xbeeCoordinator, speechMode.getSpeechVerification(), speechMode.getSpeechIdentification())) {
         //xbeeCoordinator.print("successful startup, current mode = speech\n");
@@ -104,6 +134,7 @@ void setup() {
  *                                               *
  * * * * * * * * * * * * * * * * * * * * * * * * */
 void loop() {
+    wdt_reset();
     EEPROM.put(0, transmitCount);
     Serial.println(transmitCount);
     if (xbeeCoordinator.isListening()) {
@@ -149,8 +180,8 @@ void loop() {
 }
 
 void emergencyShutdown() {
-  Serial.println("shutdown");
-    //can only be implemented once the hardware is setup
+    Serial.println("shutdown");
+    while(1) {};
 }
 
 void myFlush() {

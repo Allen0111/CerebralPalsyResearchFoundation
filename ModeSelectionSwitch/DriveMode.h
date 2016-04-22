@@ -1,28 +1,42 @@
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Document Name: DriveMode.h                                                          *
- * Author: Allen Bui                                                                   *
- * Last Revision : October 13, 2015                                                    *
- * Revision No.: ---                                                                   *
- *                                                                                     * 
- *                                                                                     *
- * Copyright (c) 2015 Allen Bui. All rights reserved.                                  *
- *                                                                                     *
- *                                                                                     *
- * DriveMode and all of its accompanying files are free                                *
- * software donated to The Cerebral Palsy Research Foundation:                         *
- * you can redistribute it and/or modify it under the terms of the                     *
- * GNU General Public License as published by the Free Software                        *
- * Foundation.                                                                         *
- *                                                                                     *
- * DriveMode is distributed in the hope that it will be useful,                        *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of                      *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                       *
- * GNU General Public License for more details.                                        *                                             
- *                                                                                     * 
- *                                                                                     *
- * DriveMode encapsulates all of the variables and functions                           *
- * that act as a drive mechanism                                                       *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+ *                                                                                 *
+ * Copyright (c) 2015 Allen Bui. <Allen.Bui.0111@gmail.com                         *
+ *                                                                                 *
+ *                                                                                 *
+ * ModeSelectionSwitch and all of its accompanying files are free                  *
+ * software donated to The Cerebral Palsy Research Foundation:                     *
+ * you can redistribute it and/or modify it under the terms of the                 *
+ * GNU General Public License as published by the Free Software                    *
+ * Foundation                                                                      *
+ *                                                                                 *  
+ * The above copyright notice and this permission notice shall be                  * 
+ * included in all copies or substantial portions of the Software.                 *                                                                                 *
+ * ModeSelectionSwitch is distributed in the hope that it will be useful.          *
+ *                                                                                 *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,                 *
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF              * 
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT           *                                                                     * 
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE                           * 
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION          * 
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION           * 
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 *                   
+ *                                                                                 * 
+ * See the GNU General Public License for more details.                            *
+ *                                                                                 * 
+ *                                                                                 *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  
+ * Document Name: DriveMode.h                                                          
+ * Author: Allen Bui                                                                   
+ * Last Revision : April 22, 2016                                                    
+ * Revision No.: ---                                                                   
+ * 
+ * DriveMode encapsulates all of the variables and functions that act as a drive 
+ * mechanism.                                                       
+ *
+ */
 
 #ifndef DriveMode_h
 
@@ -42,6 +56,7 @@
             const byte driveHigh = 'b';
             const byte driveLow = 'c';
             const byte driveVerification = 'D';
+            const int wishToTransitionCount = 3;        // number of button presses before transition
 
             int count = 0;
             int driveModeLightPin;
